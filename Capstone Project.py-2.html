@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+# coding: utf-8
+A.	Introduction
+North Carolina is one of the States in the United States of America. It’s a state in the Southeastern region of the United States of America. The state is divided into 100 counties. The capital is Raleigh, which along with Durham and Chapel Hill is home to the largest research park in the United States. 
+ 
+Greensboro formerly called Greensborough, is a city in the U.S State of North Carolina. It’s the 3rd-most populous city in North Carolina, the 68th-most populous in the whole of the United States of America.  According to the United States Census Bureau, the city has a total area of 131.8 square miles of which 126.5 square miles is land and 5.3 square miles is water.
+
+Downtown Greensboro has attracted development investment in recent years with such new construction as Yadkin Bank Park, and residential and offices. The Southside neighborhood downtown exemplifies central-city reinvestment. The formerly economically depressed neighborhood has been redeveloped as an award-winning neotraditional-style neighborhood featuring walkability, compact blocks and local amenities, and services. Downtown Greensboro has an active nightlife with numerous nightclubs, bars and restaurants.
+
+In 1998, FedEx built a $300 million mid-Atlantic air-cargo and sorting hub at Piedmont Triad International, following an intensive competition for the hub among other regions of the state, as well as locations in South Carolina. The project was challenged in court based on the quality of planned noise and pollution abatements from neighborhoods near the planned hub site. The hub opened in 2009. Originally projected by FedEx to employ 750 people in its first two years of operation and eventually 1,500, local FedEx employment has been nearly the same as before the facility was constructed.
+
+The Greensboro economy and the surrounding Piedmont Triad area traditionally have been centered around textiles, tobacco, and furniture. Greensboro's central proximity in the state has made it a popular place for families and businesses, as well as becoming more of a logistics hub, with FedEx having regional operations based in the city.
+
+There are also more things to explore in Greensboro like the arts, four season, coliseum area. Some of the attraction areas are The Bog Garden, Bicentennial Garden, The International Civil Rights Center and Museum, The Greensboro Arboretum, Green Hill Cemetery, Hagan Stone Park, and lot more. 
+
+B.	I will be using the .json file that consist of the USA state capital geographical details. The features include name of the state, the capital, the latitude and longitude of the state. With the use of Foursquare AP, I will get the most common venues in North Carolina. There are not too many public data related to demographic and social parameters for the city of Istanbul. Therefor you must set-up your own data tables in most cases. In this case, I searched on the net to get the borough file for the North Carolina County in .json file. I used Google Map, ‘Search Nearby’ option to get the center coordinates of each Borough.
+Using the data gotten form the web, I used folium to create the map of United State with focus on North Carolina.
+
+
+
+C. Business Problem
+
+We learned how North Carolina can be segmented and clustered around their neighborhoods. Both cities are very diverse and are the financial capitals of their respective countries. One of the ideas would be to compare the neighborhoods of the two cities and determine how similar or dissimilar they are. 
+
+Those that will be interested in my discussion will be the investors who wants to open a restaurant, construct a school or start a company and they want to rent or buy a property estate. The purpose of this project is to help them better understand and see the geographical advantages of different districts so that they can have a best choice of all kinds of investments and make wise decisions. we will consider factors relating to the advantages and disadvantages. 
+
+D. Data Used
+I will be using the foursquare location data and as well as the borough county data of North Carolina Neighborhood.
+The North Carolina Neighborhood contain features like id, geometry name, coordinates, borough, etc. 
+
+I will be using this data for geographical analysis of neighborhood in North Carolina Neighborhood, with focus on Greensboro. How investors can decide which neighborhood to invest and not to. How new residence decide which to rent an apartment and why he/she should rent the apartment there, based on the amenities surrounding the area.
+
+E. Discussion of The Background
+To make good use of the foursquare location data, the labs done for New York and Toronto segmented and clustered neighborhoods gave me good examples for new ideas. Data science problems always target an audience and are meant to help a group of stakeholders solve a problem, so make sure that I explicitly describe the audience and why they would care about my problem.
+
+F. Analysis 
+
+From the results on New York and Toronto, the lab especially tells 10 most common venues in each district. The data set is about 2014 New York City Neighborhood Names. After transforming the data to Json files, it is easy to use Pandas to transform them into DataFrame. Then select the required data columns to appear and get the information we want. Geopy library is used to get the latitude and longitude values. With the locations the maps can be created, and we will have a direct understanding of the neighborhoods and the purposed areas. The Folium library is also used to show maps on different requirements.
+
+
+# In[1]:
+
+
+import numpy as np # library to handle data in a vectorized manner
+
+import pandas as pd # library for data analsysis
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+
+import json # library to handle JSON files
+
+#!conda install -c conda-forge geopy --yes # uncomment this line if you haven't completed the Foursquare API lab
+from geopy.geocoders import Nominatim # convert an address into latitude and longitude values
+
+import requests # library to handle requests
+from pandas.io.json import json_normalize # tranform JSON file into a pandas dataframe
+
+# Matplotlib and associated plotting modules
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+
+# import k-means from clustering stage
+from sklearn.cluster import KMeans
+
+#!conda install -c conda-forge folium=0.5.0 --yes # uncomment this line if you haven't completed the Foursquare API lab
+import folium # map rendering library
+
+print('Libraries imported.')
+
+get_ipython().system("wget -q -O 'Toronto_data.json' https://ibm.box.com/shared/static/fbpwbovar7lf8p5sgddm06cgipa2rxpe.json")
+print('Data downloaded!')
+
+
+get_ipython().system("wget -q -O 'newyork_data.json' https://cocl.us/new_york_dataset")
+print('Data downloaded!')
+
+from geopy.geocoders import Nominatim
+address = 'Toronto, CA'
+geolocator = Nominatim(user_agent='capstone_project1')
+location = geolocator.geocode(address)
+latitude = location.latitude
+longitude = location.longitude
+print('The geograpical coordinate of Toronto are {}, {}.'.format(latitude, longitude))
+
+# create map of New York using latitude and longitude values
+map_toronto = folium.Map(location=[latitude, longitude], zoom_start=10)
+
+# add markers to map
+for lat, lng, borough, neighborhood in zip(df['Latitude'], df['Longitude'], df['Borough'], df['Neighbourhood']):
+    label = '{}, {}'.format(neighborhood, borough)
+    label = folium.Popup(label, parse_html=True)
+    folium.CircleMarker(
+        [lat, lng],
+        radius=5,
+        popup=label,
+        color='blue',
+        fill=True,
+        fill_color='#3186cc',
+        fill_opacity=0.7,
+        parse_html=False).add_to(map_toronto)  
+    
+map_toronto
+
+
+CLIENT_ID = 'putyourshere' # your Foursquare ID
+CLIENT_SECRET = 'putyourshere' # your Foursquare Secret
+VERSION = '20180604'
+LIMIT = 30
+print('Your credentails:')
+print('CLIENT_ID: ' + CLIENT_ID)
+print('CLIENT_SECRET:' + CLIENT_SECRET)
+
+LIMIT = 100 # limit of number of venues returned by Foursquare API
+radius = 500 # define radius
+# create URL
+url = 'https://api.foursquare.com/v2/venues/explore?&client_id={}&client_secret={}&v={}&ll={},{}&radius={}&limit={}'.format(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    VERSION, 
+    neighborhood_latitude, 
+    neighborhood_longitude, 
+    radius, 
+    LIMIT)
+url
+
+# function that extracts the category of the venue
+def get_category_type(row):
+    try:
+        categories_list = row['categories']
+    except:
+        categories_list = row['venue.categories']
+        
+    if len(categories_list) == 0:
+        return None
+    else:
+        return categories_list[0]['name']
+    
+venues = results['response']['groups'][0]['items']
+    
+nearby_venues = json_normalize(venues) # flatten JSON
+
+# filter columns
+filtered_columns = ['venue.name', 'venue.categories', 'venue.location.lat', 'venue.location.lng']
+nearby_venues =nearby_venues.loc[:, filtered_columns]
+
+# filter the category for each row
+nearby_venues['venue.categories'] = nearby_venues.apply(get_category_type, axis=1)
+
+# clean columns
+nearby_venues.columns = [col.split(".")[-1] for col in nearby_venues.columns]
+
+nearby_venues.head()
+
+
+# In[3]:
+
+
+get_ipython().system("wget -q -O 'newyork_data.json' https://ibm.box.com/shared/static/fbpwbovar7lf8p5sgddm06cgipa2rxpe.json")
+print('Data downloaded!')
+
+
+# In[7]:
+
+
+get_ipython().system("wget -q -O 'newyork_data.json' https://cocl.us/new_york_dataset")
+print('Data downloaded!')
+
+
+# In[11]:
+
+
+from geopy.geocoders import Nominatim
+address = 'Toronto, CA'
+geolocator = Nominatim(user_agent='capstone_project1')
+location = geolocator.geocode(address)
+latitude = location.latitude
+longitude = location.longitude
+print('The geograpical coordinate of Toronto are {}, {}.'.format(latitude, longitude))
+
+
+# In[ ]:
+
+
+
+
