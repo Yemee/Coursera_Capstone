@@ -1,0 +1,89 @@
+import numpy as np # library to handle data in a vectorized manner
+
+import pandas as pd # library for data analsysis
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+
+import json # library to handle JSON files
+
+!conda install -c conda-forge geopy --yes # uncomment this line if you haven't completed the Foursquare API lab
+from geopy.geocoders import Nominatim # convert an address into latitude and longitude values
+
+import requests # library to handle requests
+from pandas.io.json import json_normalize # tranform JSON file into a pandas dataframe
+
+# Matplotlib and associated plotting modules
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+
+# import k-means from clustering stage
+from sklearn.cluster import KMeans
+
+!conda install -c conda-forge folium=0.5.0 --yes # uncomment this line if you haven't completed the Foursquare API lab
+import folium # map rendering library
+
+print('Libraries imported.')
+
+df = pd.read_csv('Postalcode.csv')
+df.head()
+
+address = 'Toronto, CA'
+
+geolocator = Nominatim(user_agent="To_explorer")
+location = geolocator.geocode(address)
+latitude = location.latitude
+longitude = location.longitude
+print('The geograpical coordinate of Toronto are {}, {}.'.format(latitude, longitude))
+
+# create map of New York using latitude and longitude values
+map_toronto = folium.Map(location=[latitude, longitude], zoom_start=10)
+
+# add markers to map
+for lat, lng, borough, neighborhood in zip(df['Latitude'], df['Longitude'], df['Borough'], df['Neighbourhood']):
+    label = '{}, {}'.format(neighborhood, borough)
+    label = folium.Popup(label, parse_html=True)
+    folium.CircleMarker(
+        [lat, lng],
+        radius=5,
+        popup=label,
+        color='blue',
+        fill=True,
+        fill_color='#3186cc',
+        fill_opacity=0.7,
+        parse_html=False).add_to(map_toronto)  
+    
+map_toronto
+
+
+CLIENT_ID = 'UYQD0LB4EORLVQJB1LSVGJ4FSINSWAHTUPZZH44HQEHPPG5B' # your Foursquare ID
+CLIENT_SECRET = 'IMIFJQGBBSVBPWD1EOYP3BZA1SNELAJ04O1XAEA2YMW2AXK0' # your Foursquare Secret
+VERSION = '20180604'
+LIMIT = 30
+print('Your credentails:')
+print('CLIENT_ID: ' + CLIENT_ID)
+print('CLIENT_SECRET:' + CLIENT_SECRET)
+
+df.loc[0, 'Neighbourhood']
+
+neighborhood_latitude = df.loc[0, 'Latitude'] # neighborhood latitude value
+neighborhood_longitude = df.loc[0, 'Longitude'] # neighborhood longitude value
+
+neighborhood_name = df.loc[0, 'Neighbourhood'] # neighborhood name
+
+print('Latitude and longitude values of {} are {}, {}.'.format(neighborhood_name, 
+                                                               neighborhood_latitude, 
+                                                               neighborhood_longitude))
+
+LIMIT = 100 # limit of number of venues returned by Foursquare API
+radius = 500 # define radius
+# create URL
+url = 'https://api.foursquare.com/v2/venues/explore?&client_id={}&client_secret={}&v={}&ll={},{}&radius={}&limit={}'.format(
+    CLIENT_ID, 
+    CLIENT_SECRET, 
+    VERSION, 
+    neighborhood_latitude, 
+    neighborhood_longitude, 
+    radius, 
+    LIMIT)
+url
+
